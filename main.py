@@ -1,3 +1,7 @@
-# Work under Progress
+import src
 
-print('Hello World')
+url = ''
+
+m = src.Manager(url)
+
+print(m.getAudioStream()[-1])
