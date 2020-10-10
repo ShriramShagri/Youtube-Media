@@ -5,6 +5,9 @@ class Manager:
         self.video = pafy.new(url)
         self.url = url
     
+    def getDetails(self):
+        return self.video
+    
     def getAudioStream(self):
         return self.video.audiostreams
     
