@@ -1,42 +1,17 @@
-# from src import *
-
-# url = ''
-
-# m = Manager(url)
-
-# print(m.getAudioStream()[-1])
-
-
 # First Page: Intro and url textfield
 # Page 2: Loads video details(Thumbnail, Name of video, author, likes, length of video and all streams available-as list to choose(Scrollable if possible))
 # Page 3: Start Downloading with indicatorshowing how many chunks downloaded
 # Page 4: thanks and redirect to page 1
-
-# from tkinter import *
-
-# top = Tk()
-
-# top.title("Youtube Downloader")
-
-# # label = Label(top, text="url").grid(row=0)
-# # e1 = Entry(master=top).grid(row=0, column=1)
-# scrollbar = Scrollbar(top)
-# scrollbar.pack(side=RIGHT, fill=Y)
-# mylist = Listbox(top, yscrollcommand = scrollbar.set)
-# for line in range(25):
-#     mylist.insert(END, "Line number "+str(line))
-# mylist.pack(side=LEFT, fill=BOTH)
-# scrollbar.config(command=mylist.yview)
-
-# top.mainloop()
 
 import tkinter as tk 
 from tkinter import ttk 
 from tkinter import filedialog
 from src import *
 
+# Add new field and button for picking files
+# If file is picked add it to text field
 
-LARGEFONT =("Verdana", 35) 
+LARGEFONT = ("Verdana", 20) 
 
 class tkinterApp(tk.Tk): 
 
@@ -84,7 +59,7 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent) 
 
         # label of frame Layout 2 
-        label = ttk.Label(self, text ="Download From Youtube") 
+        label = ttk.Label(self, text ="Download From Youtube", font = LARGEFONT) 
         self.mystring =tk.StringVar(self)
         
         # putting the grid in its place by using 
@@ -115,6 +90,7 @@ class StartPage(tk.Frame):
 
     def download(self):
         url = self.mystring.get()
+        # Check if file picked is valid
         folder = filedialog.askdirectory()
         a = Manager(url).video
         a.getbestaudio(preftype='m4a').download(filepath=folder)
