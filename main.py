@@ -1,42 +1,17 @@
-# from src import *
-
-# url = ''
-
-# m = Manager(url)
-
-# print(m.getAudioStream()[-1])
-
-
 # First Page: Intro and url textfield
 # Page 2: Loads video details(Thumbnail, Name of video, author, likes, length of video and all streams available-as list to choose(Scrollable if possible))
 # Page 3: Start Downloading with indicatorshowing how many chunks downloaded
 # Page 4: thanks and redirect to page 1
-
-# from tkinter import *
-
-# top = Tk()
-
-# top.title("Youtube Downloader")
-
-# # label = Label(top, text="url").grid(row=0)
-# # e1 = Entry(master=top).grid(row=0, column=1)
-# scrollbar = Scrollbar(top)
-# scrollbar.pack(side=RIGHT, fill=Y)
-# mylist = Listbox(top, yscrollcommand = scrollbar.set)
-# for line in range(25):
-#     mylist.insert(END, "Line number "+str(line))
-# mylist.pack(side=LEFT, fill=BOTH)
-# scrollbar.config(command=mylist.yview)
-
-# top.mainloop()
 
 import tkinter as tk 
 from tkinter import ttk 
 from tkinter import filedialog
 from src import *
 
+# Add new field and button for picking files
+# If file is picked add it to text field
 
-LARGEFONT =("Verdana", 35) 
+LARGEFONT = ("Verdana", 20) 
 
 class tkinterApp(tk.Tk): 
 
@@ -84,40 +59,53 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent) 
 
         # label of frame Layout 2 
-        label = ttk.Label(self, text ="Download From Youtube") 
+        label = ttk.Label(self, text ="Download From Youtube", font = LARGEFONT) 
         self.mystring =tk.StringVar(self)
+        self.mystring2 =tk.StringVar(self)
         
         # putting the grid in its place by using 
         # grid 
         label.grid(row = 0, padx = 10, pady = 10) 
 
-        url = tk.Frame(self)
-        url.grid(row = 1, padx = 10, pady = 10) 
-        label2 = ttk.Label(url, text="url")
+        path = tk.Frame(self)
+        path.grid(row = 1, padx = 10, pady = 10) 
+        label2 = ttk.Label(path, text="Pick Folder")
         label2.pack(side=tk.LEFT, padx=10)
-        self.e1 = ttk.Entry(master=url, textvariable = self.mystring)
+        self.e1 = ttk.Entry(master=path, textvariable = self.mystring)
         self.e1.pack(side=tk.LEFT, padx=10)
 
-        button1 = ttk.Button(self, text ="Download", 
-        command = lambda : self.download())
+        button1 = ttk.Button(path, text ="Browse..", 
+        command = self.getFile)
+        button1.pack(side=tk.LEFT, padx=10)
 
         # putting the button in its place by 
         # using grid 
-        button1.grid(row = 2, column = 1, padx = 10, pady = 10) 
+        # button1.grid(row = 2, column = 1, padx = 10, pady = 10) 
 
-        # ## button to show frame 2 with text layout2 
-        # button2 = ttk.Button(self, text ="Page 2", 
-        # command = lambda : controller.show_frame(Page2)) 
+        url = tk.Frame(self)
+        url.grid(row = 3, padx = 10, pady = 10) 
+        label3 = ttk.Label(url, text="url")
+        label3.pack(side=tk.LEFT, padx=10)
+        self.e2 = ttk.Entry(master=url, textvariable = self.mystring2)
+        self.e2.pack(side=tk.LEFT, padx=10)
 
-        # # putting the button in its place by 
-        # # using grid 
-        # button2.grid(row = 2, column = 1, padx = 10, pady = 10) 
+        button2 = ttk.Button(url, text ="Download", 
+        command = lambda : self.download())
+        button2.pack(side=tk.LEFT, padx=10)
+
+        # button2.grid(row = 4, column = 1, padx = 10, pady = 10) 
 
     def download(self):
-        url = self.mystring.get()
-        folder = filedialog.askdirectory()
-        a = Manager(url).video
-        a.getbestaudio(preftype='m4a').download(filepath=folder)
+        try:
+            if self.folder:
+                url = self.mystring2.get()
+                a = Manager(url).video
+                a.getbestaudio(preftype='m4a').download(filepath=self.folder)
+        except Exception as e:
+            print(e)
+
+    def getFile(self):
+        self.folder = filedialog.askdirectory()
 
 # second window frame page1 
 class Page1(tk.Frame): 
