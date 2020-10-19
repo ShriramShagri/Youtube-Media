@@ -61,39 +61,51 @@ class StartPage(tk.Frame):
         # label of frame Layout 2 
         label = ttk.Label(self, text ="Download From Youtube", font = LARGEFONT) 
         self.mystring =tk.StringVar(self)
+        self.mystring2 =tk.StringVar(self)
         
         # putting the grid in its place by using 
         # grid 
         label.grid(row = 0, padx = 10, pady = 10) 
 
-        url = tk.Frame(self)
-        url.grid(row = 1, padx = 10, pady = 10) 
-        label2 = ttk.Label(url, text="url")
+        path = tk.Frame(self)
+        path.grid(row = 1, padx = 10, pady = 10) 
+        label2 = ttk.Label(path, text="Pick Folder")
         label2.pack(side=tk.LEFT, padx=10)
-        self.e1 = ttk.Entry(master=url, textvariable = self.mystring)
+        self.e1 = ttk.Entry(master=path, textvariable = self.mystring)
         self.e1.pack(side=tk.LEFT, padx=10)
 
-        button1 = ttk.Button(self, text ="Download", 
-        command = lambda : self.download())
+        button1 = ttk.Button(path, text ="Browse..", 
+        command = self.getFile)
+        button1.pack(side=tk.LEFT, padx=10)
 
         # putting the button in its place by 
         # using grid 
-        button1.grid(row = 2, column = 1, padx = 10, pady = 10) 
+        # button1.grid(row = 2, column = 1, padx = 10, pady = 10) 
 
-        # ## button to show frame 2 with text layout2 
-        # button2 = ttk.Button(self, text ="Page 2", 
-        # command = lambda : controller.show_frame(Page2)) 
+        url = tk.Frame(self)
+        url.grid(row = 3, padx = 10, pady = 10) 
+        label3 = ttk.Label(url, text="url")
+        label3.pack(side=tk.LEFT, padx=10)
+        self.e2 = ttk.Entry(master=url, textvariable = self.mystring2)
+        self.e2.pack(side=tk.LEFT, padx=10)
 
-        # # putting the button in its place by 
-        # # using grid 
-        # button2.grid(row = 2, column = 1, padx = 10, pady = 10) 
+        button2 = ttk.Button(url, text ="Download", 
+        command = lambda : self.download())
+        button2.pack(side=tk.LEFT, padx=10)
+
+        # button2.grid(row = 4, column = 1, padx = 10, pady = 10) 
 
     def download(self):
-        url = self.mystring.get()
-        # Check if file picked is valid
-        folder = filedialog.askdirectory()
-        a = Manager(url).video
-        a.getbestaudio(preftype='m4a').download(filepath=folder)
+        try:
+            if self.folder:
+                url = self.mystring2.get()
+                a = Manager(url).video
+                a.getbestaudio(preftype='m4a').download(filepath=self.folder)
+        except Exception as e:
+            print(e)
+
+    def getFile(self):
+        self.folder = filedialog.askdirectory()
 
 # second window frame page1 
 class Page1(tk.Frame): 
