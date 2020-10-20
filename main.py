@@ -7,11 +7,12 @@ import tkinter as tk
 from tkinter import ttk 
 from tkinter import filedialog
 from src import *
-
+import _thread
 # Add new field and button for picking files
 # If file is picked add it to text field
 
 LARGEFONT = ("Verdana", 20) 
+SMALLFONT = ("Verdana", 10) 
 
 class tkinterApp(tk.Tk): 
 
@@ -20,10 +21,12 @@ class tkinterApp(tk.Tk):
         
         # __init__ function for class Tk 
         tk.Tk.__init__(self, *args, **kwargs) 
+
+        # self.folder = ""
         
         # creating a container 
         container = tk.Frame(self) 
-        container.pack(side = "top", fill = "both", expand = True) 
+        container.pack(side = "top", fill = "both", expand = False) 
 
         container.grid_rowconfigure(0, weight = 1) 
         container.grid_columnconfigure(0, weight = 1) 
@@ -56,56 +59,81 @@ class tkinterApp(tk.Tk):
 
 class StartPage(tk.Frame): 
     def __init__(self, parent, controller): 
+        # self.cotroller = controller
+        tk.Frame.__init__(self, parent) 
+        self.folder = ""
+
+        Hframe = HeadingPage1(self, controller)
+        Hframe.grid(row = 0, padx = 10, pady = 10) 
+
+        Pframe = PathPage1(self, controller)
+        Pframe.grid(row = 1, padx = 10, pady = 10) 
+
+        Uframe = UrlPage1(self, controller)
+        Uframe.grid(row = 2, padx = 10, pady = 10) 
+        
+
+class HeadingPage1(tk.Frame):
+    def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent) 
 
-        # label of frame Layout 2 
         label = ttk.Label(self, text ="Download From Youtube", font = LARGEFONT) 
+        label.pack(side=tk.LEFT, padx=10)
+
+class PathPage1(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self, parent) 
         self.mystring =tk.StringVar(self)
-        self.mystring2 =tk.StringVar(self)
-        
-        # putting the grid in its place by using 
-        # grid 
-        label.grid(row = 0, padx = 10, pady = 10) 
 
-        path = tk.Frame(self)
-        path.grid(row = 1, padx = 10, pady = 10) 
-        label2 = ttk.Label(path, text="Pick Folder")
-        label2.pack(side=tk.LEFT, padx=10)
-        self.e1 = ttk.Entry(master=path, textvariable = self.mystring)
-        self.e1.pack(side=tk.LEFT, padx=10)
+        label = ttk.Label(self, text="Pick Folder:", font=SMALLFONT)
+        label.pack(side=tk.LEFT, padx=5)
+        self.e1 = ttk.Entry(master=self, textvariable = self.mystring)
+        self.e1.pack(side=tk.LEFT, padx=5)
 
-        button1 = ttk.Button(path, text ="Browse..", 
+        button1 = ttk.Button(self, text ="Browse..", 
         command = self.getFile)
-        button1.pack(side=tk.LEFT, padx=10)
-
-        # putting the button in its place by 
-        # using grid 
-        # button1.grid(row = 2, column = 1, padx = 10, pady = 10) 
-
-        url = tk.Frame(self)
-        url.grid(row = 3, padx = 10, pady = 10) 
-        label3 = ttk.Label(url, text="url")
-        label3.pack(side=tk.LEFT, padx=10)
-        self.e2 = ttk.Entry(master=url, textvariable = self.mystring2)
-        self.e2.pack(side=tk.LEFT, padx=10)
-
-        button2 = ttk.Button(url, text ="Download", 
-        command = lambda : self.download())
-        button2.pack(side=tk.LEFT, padx=10)
-
-        # button2.grid(row = 4, column = 1, padx = 10, pady = 10) 
-
-    def download(self):
-        try:
-            if self.folder:
-                url = self.mystring2.get()
-                a = Manager(url).video
-                a.getbestaudio(preftype='m4a').download(filepath=self.folder)
-        except Exception as e:
-            print(e)
-
+        button1.pack(side=tk.LEFT, padx=5)
+    
     def getFile(self):
-        self.folder = filedialog.askdirectory()
+        self.controller.folder = filedialog.askdirectory()
+        self.mystring.set(self.controller.folder)
+
+class UrlPage1(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self, parent) 
+        self.mystring =tk.StringVar(self)
+
+        label = ttk.Label(self, text="Url:", font=SMALLFONT)
+        label.pack(side=tk.LEFT, padx=10)
+        self.e = ttk.Entry(master=self, textvariable = self.mystring)
+        self.e.pack(side=tk.LEFT, padx=10)
+
+        button = ttk.Button(self, text ="Download", 
+        command = lambda : self.download())
+        button.pack(side=tk.LEFT, padx=10)
+    
+    def download(self):
+        self.controller.show_frame(Page1)
+        if self.controller.folder != "":
+            url = self.mystring.get()
+            try: 
+                a = Manager(url).video
+                _thread.start_new_thread(self.filedownload, (a,))
+                
+            except Exception as e:
+                print(e)
+        else:
+            print("No Folder Choosen")
+    def filedownload(self, a):
+        a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
+    
+    def callback(self, total, recvd, ratio, rate, eta):
+        self.mystring.set(str(eta))
+
+    
+
 
 # second window frame page1 
 class Page1(tk.Frame): 
