@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import ttk 
 from tkinter import filedialog
 from src import *
-
+import _thread
 # Add new field and button for picking files
 # If file is picked add it to text field
 
@@ -120,14 +120,17 @@ class UrlPage1(tk.Frame):
             url = self.mystring.get()
             try: 
                 a = Manager(url).video
-                a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
+                _thread.start_new_thread(self.filedownload, (a,))
+                
             except Exception as e:
                 print(e)
         else:
             print("No Folder Choosen")
+    def filedownload(self, a):
+        a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
     
     def callback(self, total, recvd, ratio, rate, eta):
-        print(str(eta) + "\r")
+        self.mystring.set(str(eta))
 
     
 
