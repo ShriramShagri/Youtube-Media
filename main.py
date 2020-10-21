@@ -8,6 +8,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from src import *
 import _thread
+from math import ceil
 # Add new field and button for picking files
 # If file is picked add it to text field
 
@@ -53,24 +54,34 @@ class tkinterApp(tk.Tk):
     # parameter 
     def show_frame(self, cont): 
         frame = self.frames[cont] 
+        self.clearStuff(frame)
         frame.tkraise() 
+    
+    def getFrame(self, c):
+        return self.frames[c]
+    
+    def clearStuff(self, f):
+        if f.entryExist:
+            f.Pframe.entry.delete(0, 'end')
+            f.Uframe.entry.delete(0, 'end')
 
 # first window frame startpage 
 
 class StartPage(tk.Frame): 
     def __init__(self, parent, controller): 
         # self.cotroller = controller
+        self.entryExist = True
         tk.Frame.__init__(self, parent) 
         self.folder = ""
 
-        Hframe = HeadingPage1(self, controller)
-        Hframe.grid(row = 0, padx = 10, pady = 10) 
+        self.Hframe = HeadingPage1(self, controller)
+        self.Hframe.grid(row = 0, padx = 10, pady = 10) 
 
-        Pframe = PathPage1(self, controller)
-        Pframe.grid(row = 1, padx = 10, pady = 10) 
+        self.Pframe = PathPage1(self, controller)
+        self.Pframe.grid(row = 1, padx = 10, pady = 10) 
 
-        Uframe = UrlPage1(self, controller)
-        Uframe.grid(row = 2, padx = 10, pady = 10) 
+        self.Uframe = UrlPage1(self, controller)
+        self.Uframe.grid(row = 2, padx = 10, pady = 10) 
         
 
 class HeadingPage1(tk.Frame):
@@ -88,8 +99,8 @@ class PathPage1(tk.Frame):
 
         label = ttk.Label(self, text="Pick Folder:", font=SMALLFONT)
         label.pack(side=tk.LEFT, padx=5)
-        self.e1 = ttk.Entry(master=self, textvariable = self.mystring)
-        self.e1.pack(side=tk.LEFT, padx=5)
+        self.entry = ttk.Entry(master=self, textvariable = self.mystring)
+        self.entry.pack(side=tk.LEFT, padx=5)
 
         button1 = ttk.Button(self, text ="Browse..", 
         command = self.getFile)
@@ -107,8 +118,8 @@ class UrlPage1(tk.Frame):
 
         label = ttk.Label(self, text="Url:", font=SMALLFONT)
         label.pack(side=tk.LEFT, padx=10)
-        self.e = ttk.Entry(master=self, textvariable = self.mystring)
-        self.e.pack(side=tk.LEFT, padx=10)
+        self.entry = ttk.Entry(master=self, textvariable = self.mystring)
+        self.entry.pack(side=tk.LEFT, padx=10)
 
         button = ttk.Button(self, text ="Download", 
         command = lambda : self.download())
@@ -119,18 +130,26 @@ class UrlPage1(tk.Frame):
         if self.controller.folder != "":
             url = self.mystring.get()
             try: 
-                a = Manager(url).video
-                _thread.start_new_thread(self.filedownload, (a,))
+                
+                _thread.start_new_thread(self.filedownload, (url,))
                 
             except Exception as e:
                 print(e)
         else:
             print("No Folder Choosen")
-    def filedownload(self, a):
+
+    def filedownload(self, url):
+        a = Manager(url).video
         a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
     
     def callback(self, total, recvd, ratio, rate, eta):
-        self.mystring.set(str(eta))
+        page2 = self.controller.getFrame(Page1)
+        page2.progress['value'] = ceil(ratio*100)
+        page2.label['text'] = 'Recieved: ' + str(recvd) + ", ETA: " + str(eta)
+        if page2.progress['value'] >= 100:
+            page2.button['state'] = tk.NORMAL
+            page2.label['text'] = "Download Complete!"
+        self.controller.update_idletasks() 
 
     
 
@@ -138,27 +157,32 @@ class UrlPage1(tk.Frame):
 # second window frame page1 
 class Page1(tk.Frame): 
     def __init__(self, parent, controller): 
+        self.entryExist = False
         tk.Frame.__init__(self, parent) 
-        label = ttk.Label(self, text ="Page 1", font = LARGEFONT) 
-        label.grid(row = 0, column = 4, padx = 10, pady = 10) 
+
+        self.label = ttk.Label(self, text="Download Will Start Soon!", font=SMALLFONT)
+        self.label.grid(row=0, padx = 10, pady = 10)
+
+        self.progress = ttk.Progressbar(self.Taskbar, orient = tk.HORIZONTAL, length = 400, mode = 'determinate')
+        self.progress.grid(row = 0, padx = 10, pady = 10) 
 
         # button to show frame 2 with text 
         # layout2 
-        button1 = ttk.Button(self, text ="StartPage", 
+        self.button = ttk.Button(self, text ="StartPage", state=tk.DISABLED,
                             command = lambda : controller.show_frame(StartPage)) 
 
         # putting the button in its place 
         # by using grid 
-        button1.grid(row = 1, column = 1, padx = 10, pady = 10) 
+        self.button.grid(row = 1, padx = 10, pady = 10) 
 
         # button to show frame 2 with text 
         # layout2 
-        button2 = ttk.Button(self, text ="Page 2", 
-                            command = lambda : controller.show_frame(Page2)) 
+        # button2 = ttk.Button(self, text ="Page 2", 
+        #                     command = lambda : controller.show_frame(Page2)) 
 
         # putting the button in its place by 
         # using grid 
-        button2.grid(row = 2, column = 1, padx = 10, pady = 10) 
+        # button2.grid(row = 2, padx = 10, pady = 10) 
 
 
 
