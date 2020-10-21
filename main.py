@@ -163,8 +163,8 @@ class Page1(tk.Frame):
         self.label = ttk.Label(self, text="Download Will Start Soon!", font=SMALLFONT)
         self.label.grid(row=0, padx = 10, pady = 10)
 
-        self.progress = ttk.Progressbar(self.Taskbar, orient = tk.HORIZONTAL, length = 400, mode = 'determinate')
-        self.progress.grid(row = 0, padx = 10, pady = 10) 
+        self.progress = ttk.Progressbar(self, orient = tk.HORIZONTAL, length = 400, mode = 'determinate')
+        self.progress.grid(row = 1, padx = 10, pady = 10) 
 
         # button to show frame 2 with text 
         # layout2 
@@ -173,7 +173,7 @@ class Page1(tk.Frame):
 
         # putting the button in its place 
         # by using grid 
-        self.button.grid(row = 1, padx = 10, pady = 10) 
+        self.button.grid(row = 2, padx = 10, pady = 10) 
 
         # button to show frame 2 with text 
         # layout2 
