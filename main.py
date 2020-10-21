@@ -9,8 +9,7 @@ from tkinter import filedialog
 from src import *
 import _thread
 from math import ceil
-# Add new field and button for picking files
-# If file is picked add it to text field
+
 
 LARGEFONT = ("Verdana", 20) 
 SMALLFONT = ("Verdana", 10) 
@@ -22,8 +21,10 @@ class tkinterApp(tk.Tk):
         
         # __init__ function for class Tk 
         tk.Tk.__init__(self, *args, **kwargs) 
+        self.geometry("400x400")
+        self.resizable(False, False)
 
-        # self.folder = ""
+        self.folder = ""
         
         # creating a container 
         container = tk.Frame(self) 
@@ -75,7 +76,7 @@ class StartPage(tk.Frame):
         self.folder = ""
 
         self.Hframe = HeadingPage1(self, controller)
-        self.Hframe.grid(row = 0, padx = 10, pady = 10) 
+        self.Hframe.grid(row = 0, padx = 15, pady = 20) 
 
         self.Pframe = PathPage1(self, controller)
         self.Pframe.grid(row = 1, padx = 10, pady = 10) 
@@ -126,8 +127,8 @@ class UrlPage1(tk.Frame):
         button.pack(side=tk.LEFT, padx=10)
     
     def download(self):
-        self.controller.show_frame(Page1)
         if self.controller.folder != "":
+            self.controller.show_frame(Page1)
             url = self.mystring.get()
             try: 
                 
@@ -161,28 +162,18 @@ class Page1(tk.Frame):
         tk.Frame.__init__(self, parent) 
 
         self.label = ttk.Label(self, text="Download Will Start Soon!", font=SMALLFONT)
-        self.label.grid(row=0, padx = 10, pady = 10)
+        self.label.grid(row=0, padx = 10, pady = 20)
 
         self.progress = ttk.Progressbar(self, orient = tk.HORIZONTAL, length = 400, mode = 'determinate')
-        self.progress.grid(row = 1, padx = 10, pady = 10) 
+        self.progress.grid(row = 1, padx = 10, pady = 20) 
 
         # button to show frame 2 with text 
         # layout2 
         self.button = ttk.Button(self, text ="StartPage", state=tk.DISABLED,
                             command = lambda : controller.show_frame(StartPage)) 
 
-        # putting the button in its place 
-        # by using grid 
-        self.button.grid(row = 2, padx = 10, pady = 10) 
+        self.button.grid(row = 2, padx = 10, pady = 5) 
 
-        # button to show frame 2 with text 
-        # layout2 
-        # button2 = ttk.Button(self, text ="Page 2", 
-        #                     command = lambda : controller.show_frame(Page2)) 
-
-        # putting the button in its place by 
-        # using grid 
-        # button2.grid(row = 2, padx = 10, pady = 10) 
 
 
 
