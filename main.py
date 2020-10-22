@@ -6,6 +6,7 @@
 import tkinter as tk 
 from tkinter import ttk 
 from tkinter import filedialog
+import tkinter.messagebox as box
 from src import *
 import _thread
 from math import ceil
@@ -63,81 +64,65 @@ class tkinterApp(tk.Tk):
     
     def clearStuff(self, f):
         if f.entryExist:
-            f.Pframe.entry.delete(0, 'end')
-            f.Uframe.entry.delete(0, 'end')
+            f.folderEntry.delete(0, 'end')
+            f.urlEntry.delete(0, 'end')
 
 # first window frame startpage 
 
 class StartPage(tk.Frame): 
     def __init__(self, parent, controller): 
-        # self.cotroller = controller
+        self.controller = controller
         self.entryExist = True
         tk.Frame.__init__(self, parent) 
         self.folder = ""
 
-        self.Hframe = HeadingPage1(self, controller)
+        self.Hframe = tk.Frame(self)
+        self.label = ttk.Label(self.Hframe, text ="Download From Youtube", font = LARGEFONT) 
+        self.label.pack(side=tk.LEFT)
         self.Hframe.grid(row = 0, padx = 15, pady = 20) 
 
-        self.Pframe = PathPage1(self, controller)
+        self.Pframe = tk.Frame(self)
+        self.folderString =tk.StringVar(self)
+
+        self.folderLabel = ttk.Label(self.Pframe, text="Pick Folder:", font=SMALLFONT)
+        self.folderLabel.pack(side=tk.LEFT, padx=5)
+        self.folderEntry = ttk.Entry(master=self.Pframe, textvariable = self.folderString)
+        self.folderEntry.pack(side=tk.LEFT, padx=5)
+
+        self.folderButton = ttk.Button(self.Pframe, text ="Browse..", 
+        command = self.getFile)
+        self.folderButton.pack(side=tk.LEFT, padx=5)
         self.Pframe.grid(row = 1, padx = 10, pady = 10) 
 
-        self.Uframe = UrlPage1(self, controller)
-        self.Uframe.grid(row = 2, padx = 10, pady = 10) 
-        
+        self.Uframe = tk.Frame(self)
+        self.urlString =tk.StringVar(self)
 
-class HeadingPage1(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent) 
+        self.urlLabel = ttk.Label(self.Uframe, text="Url:", font=SMALLFONT)
+        self.urlLabel.pack(side=tk.LEFT, padx=10)
+        self.urlEntry = ttk.Entry(master=self.Uframe, textvariable = self.urlString)
+        self.urlEntry.pack(side=tk.LEFT, padx=10)
 
-        label = ttk.Label(self, text ="Download From Youtube", font = LARGEFONT) 
-        label.pack(side=tk.LEFT, padx=10)
-
-class PathPage1(tk.Frame):
-    def __init__(self, parent, controller):
-        self.controller = controller
-        tk.Frame.__init__(self, parent) 
-        self.mystring =tk.StringVar(self)
-
-        label = ttk.Label(self, text="Pick Folder:", font=SMALLFONT)
-        label.pack(side=tk.LEFT, padx=5)
-        self.entry = ttk.Entry(master=self, textvariable = self.mystring)
-        self.entry.pack(side=tk.LEFT, padx=5)
-
-        button1 = ttk.Button(self, text ="Browse..", 
-        command = self.getFile)
-        button1.pack(side=tk.LEFT, padx=5)
-    
-    def getFile(self):
-        self.controller.folder = filedialog.askdirectory()
-        self.mystring.set(self.controller.folder)
-
-class UrlPage1(tk.Frame):
-    def __init__(self, parent, controller):
-        self.controller = controller
-        tk.Frame.__init__(self, parent) 
-        self.mystring =tk.StringVar(self)
-
-        label = ttk.Label(self, text="Url:", font=SMALLFONT)
-        label.pack(side=tk.LEFT, padx=10)
-        self.entry = ttk.Entry(master=self, textvariable = self.mystring)
-        self.entry.pack(side=tk.LEFT, padx=10)
-
-        button = ttk.Button(self, text ="Download", 
+        self.urlButton = ttk.Button(self.Uframe, text ="Download", 
         command = lambda : self.download())
-        button.pack(side=tk.LEFT, padx=10)
+        self.urlButton.pack(side=tk.LEFT, padx=10)
+
+        self.Uframe.grid(row = 2, padx = 10, pady = 10) 
     
     def download(self):
         if self.controller.folder != "":
             self.controller.show_frame(Page1)
-            url = self.mystring.get()
-            try: 
-                
-                _thread.start_new_thread(self.filedownload, (url,))
-                
-            except Exception as e:
-                print(e)
+            url = self.urlString.get()
+            if url == "":
+                box.showerror(title="No Url entered", message="Please enter a folder!")
+            else:
+                try: 
+                    _thread.start_new_thread(self.filedownload, (url,))
+                    
+                except Exception as e:
+                    print(e)
+                    box.showerror(title="Error!", message=str(e))
         else:
-            print("No Folder Choosen")
+            box.showerror(title="No Folder Selected", message="Please choose a folder!")
 
     def filedownload(self, url):
         a = Manager(url).video
@@ -151,9 +136,11 @@ class UrlPage1(tk.Frame):
             page2.button['state'] = tk.NORMAL
             page2.label['text'] = "Download Complete!"
         self.controller.update_idletasks() 
-
     
-
+    def getFile(self):
+        self.controller.folder = filedialog.askdirectory()
+        self.folderString.set(self.controller.folder)
+    
 
 # second window frame page1 
 class Page1(tk.Frame): 
