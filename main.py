@@ -45,12 +45,12 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting 
         # of the different page layouts 
-        for F in (StartPage, Page1, Page2): 
+        for F in (StartPage, DownloadPage, Page2): 
 
             frame = F(container, self) 
 
             # initializing frame of that object from 
-            # startpage, page1, page2 respectively with 
+            # startpage, DownloadPage, page2 respectively with 
             # for loop 
             self.frames[F] = frame 
 
@@ -93,6 +93,7 @@ class StartPage(tk.Frame, sys):
         self.controller = controller
 
         # Temporary Variable
+        # REMOVE SOON!!!
         self.entryExist = True
 
         # __init__ function for class Tk.Frame
@@ -143,6 +144,8 @@ class StartPage(tk.Frame, sys):
         '''
         Overriding sys class method to catch errors in Child Thread
         '''
+
+        # CHANGE!!!
         print('error')
     
     def download(self):
@@ -156,7 +159,7 @@ class StartPage(tk.Frame, sys):
             if os.path.exists(self.folderString.get()):
 
                 # Change this to end
-                self.controller.show_frame(Page1)
+                self.controller.show_frame(DownloadPage)
                 url = self.urlString.get()
 
                 # if no url is selected
@@ -167,7 +170,7 @@ class StartPage(tk.Frame, sys):
                 else:
                     # Set entry strings to empty here
 
-                    # try catch doesn't work....override unraisablehook from sys and try
+                    # try catch doesn't work....override unraisablehook from sys and try CHANGE!!!!
                     try: 
                         _thread.start_new_thread(self.filedownload, (url,))
                         
@@ -190,7 +193,7 @@ class StartPage(tk.Frame, sys):
     
     def callback(self, total, recvd, ratio, rate, eta):
         # Status bar update function
-        page2 = self.controller.getFrame(Page1)
+        page2 = self.controller.getFrame(DownloadPage)
         page2.progress['value'] = ceil(ratio*100)
         page2.label['text'] = 'Recieved: ' + str(recvd) + ", ETA: " + str(eta)
         if page2.progress['value'] >= 100:
@@ -202,8 +205,8 @@ class StartPage(tk.Frame, sys):
         self.folderString.set(filedialog.askdirectory())
     
 
-# second window frame page1 
-class Page1(tk.Frame): 
+# second window frame DownloadPage 
+class DownloadPage(tk.Frame): 
     def __init__(self, parent, controller): 
         self.entryExist = False
         tk.Frame.__init__(self, parent) 
@@ -235,7 +238,7 @@ class Page2(tk.Frame):
         # button to show frame 2 with text 
         # layout2 
         button1 = ttk.Button(self, text ="Page 1", 
-                            command = lambda : controller.show_frame(Page1)) 
+                            command = lambda : controller.show_frame(DownloadPage)) 
 
         # putting the button in its place by 
         # using grid 
