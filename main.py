@@ -9,6 +9,8 @@ from tkinter import filedialog
 import tkinter.messagebox as box
 from src import *
 import _thread
+import os
+import sys
 from math import ceil
 
 
@@ -24,8 +26,6 @@ class tkinterApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs) 
         self.geometry("400x400")
         self.resizable(False, False)
-
-        self.folder = ""
         
         # creating a container 
         container = tk.Frame(self) 
@@ -69,36 +69,49 @@ class tkinterApp(tk.Tk):
 
 # first window frame startpage 
 
-class StartPage(tk.Frame): 
+class StartPage(tk.Frame, sys): 
     def __init__(self, parent, controller): 
+        # Main class instance
         self.controller = controller
-        self.entryExist = True
-        tk.Frame.__init__(self, parent) 
-        self.folder = ""
 
+        # Temporary Variable
+        self.entryExist = True
+
+        # __init__ function for class Tk.Frame
+        tk.Frame.__init__(self, parent) 
+
+        # Frame For heading(Includes only Label)
         self.Hframe = tk.Frame(self)
+
         self.label = ttk.Label(self.Hframe, text ="Download From Youtube", font = LARGEFONT) 
         self.label.pack(side=tk.LEFT)
+
         self.Hframe.grid(row = 0, padx = 15, pady = 20) 
 
+        # Frame for folder store path(Entry, Button and Label)
         self.Pframe = tk.Frame(self)
+
+        # Saves folder entry string
         self.folderString =tk.StringVar(self)
 
         self.folderLabel = ttk.Label(self.Pframe, text="Pick Folder:", font=SMALLFONT)
         self.folderLabel.pack(side=tk.LEFT, padx=5)
+
         self.folderEntry = ttk.Entry(master=self.Pframe, textvariable = self.folderString)
         self.folderEntry.pack(side=tk.LEFT, padx=5)
 
-        self.folderButton = ttk.Button(self.Pframe, text ="Browse..", 
-        command = self.getFile)
+        self.folderButton = ttk.Button(self.Pframe, text ="Browse..", command = self.getFile)
         self.folderButton.pack(side=tk.LEFT, padx=5)
+
         self.Pframe.grid(row = 1, padx = 10, pady = 10) 
 
+        # Frame for folder store path(Entry, Button and Label)
         self.Uframe = tk.Frame(self)
         self.urlString =tk.StringVar(self)
 
         self.urlLabel = ttk.Label(self.Uframe, text="Url:", font=SMALLFONT)
         self.urlLabel.pack(side=tk.LEFT, padx=10)
+
         self.urlEntry = ttk.Entry(master=self.Uframe, textvariable = self.urlString)
         self.urlEntry.pack(side=tk.LEFT, padx=10)
 
@@ -108,27 +121,57 @@ class StartPage(tk.Frame):
 
         self.Uframe.grid(row = 2, padx = 10, pady = 10) 
     
+    def unraisablehook(self):
+        '''
+        Overriding sys class method to catch errors in Child Thread
+        '''
+        print('error')
+    
     def download(self):
-        if self.controller.folder != "":
-            self.controller.show_frame(Page1)
-            url = self.urlString.get()
-            if url == "":
-                box.showerror(title="No Url entered", message="Please enter a folder!")
+        '''
+        Takes to next page 
+        ONLY IF
+        -> Valid url and folder selected
+        '''
+        if self.folderString.get() != "":
+            # Check if Folder Exists
+            if os.path.exists(self.folderString.get()):
+
+                # Change this to end
+                self.controller.show_frame(Page1)
+                url = self.urlString.get()
+
+                # if no url is selected
+                if url == "":
+                    box.showerror(title="No Url entered", message="Please enter a folder!")
+
+                # Else check for validity of url
+                else:
+                    # Set entry strings to empty here
+
+                    # try catch doesn't work....override unraisablehook from sys and try
+                    try: 
+                        _thread.start_new_thread(self.filedownload, (url,))
+                        
+                    except Exception as e:
+                        print(e)
+                        box.showerror(title="Error!", message=str(e))
+
+            # If folder is invalid
             else:
-                try: 
-                    _thread.start_new_thread(self.filedownload, (url,))
-                    
-                except Exception as e:
-                    print(e)
-                    box.showerror(title="Error!", message=str(e))
+                box.showerror(title="Invalid Path", message="Please choose a valid path")
+
+        # If folder wasn't choosen
         else:
             box.showerror(title="No Folder Selected", message="Please choose a folder!")
 
     def filedownload(self, url):
+        # Temporary Function
         a = Manager(url).video
         a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
     
     def callback(self, total, recvd, ratio, rate, eta):
+        # Status bar update function
         page2 = self.controller.getFrame(Page1)
         page2.progress['value'] = ceil(ratio*100)
         page2.label['text'] = 'Recieved: ' + str(recvd) + ", ETA: " + str(eta)
@@ -138,8 +181,7 @@ class StartPage(tk.Frame):
         self.controller.update_idletasks() 
     
     def getFile(self):
-        self.controller.folder = filedialog.askdirectory()
-        self.folderString.set(self.controller.folder)
+        self.folderString.set(filedialog.askdirectory())
     
 
 # second window frame page1 
