@@ -3,6 +3,12 @@
 # Page 3: Start Downloading with indicatorshowing how many chunks downloaded
 # Page 4: thanks and redirect to page 1
 
+#  Additional features
+
+# 1) Use pydub to convert audio/video to different formats &&& change metadata.
+# 2) Instead of asking for different formats other than downloadable ones...give some dropdown and if the audio isn't in required format, just convert
+# 3)
+
 import tkinter as tk 
 from tkinter import ttk 
 from tkinter import filedialog
@@ -55,14 +61,26 @@ class tkinterApp(tk.Tk):
     # to display the current frame passed as 
     # parameter 
     def show_frame(self, cont): 
+        # Show certain frame based on which page we are in
         frame = self.frames[cont] 
+
+        # Temporary function 
+        # REMOVE SOON!!!!
         self.clearStuff(frame)
+
         frame.tkraise() 
     
     def getFrame(self, c):
+        '''
+        Used to access frame data of one frame in another
+
+        c  --->  Class instance
+        '''
         return self.frames[c]
     
     def clearStuff(self, f):
+        # Temporary function 
+        # REMOVE SOON!!!!!
         if f.entryExist:
             f.folderEntry.delete(0, 'end')
             f.urlEntry.delete(0, 'end')
