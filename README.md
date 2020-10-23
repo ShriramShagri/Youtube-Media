@@ -2,8 +2,7 @@
 
 A simple desktop application to download youtube video/audio/video without audio
 
-Built using tkinter
-
+Built using tkinter, pafy, pydub
 
 > Plans
 

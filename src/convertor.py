@@ -1,6 +1,6 @@
 class Converter():
     '''
-    Format converter
+    Format converter --> Change downloaded file format if required
     '''
     def __init__(self, *args, **kwargs):
         pass

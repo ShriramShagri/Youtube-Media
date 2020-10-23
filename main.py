@@ -88,6 +88,9 @@ class tkinterApp(tk.Tk):
 # first window frame startpage 
 
 class StartPage(tk.Frame, sys): 
+    '''
+    Main Page
+    '''
     def __init__(self, parent, controller): 
         # Main class instance
         self.controller = controller
@@ -206,7 +209,10 @@ class StartPage(tk.Frame, sys):
     
 
 # second window frame DownloadPage 
-class DownloadPage(tk.Frame): 
+class DownloadPage(tk.Frame):
+    '''
+    Downloading page
+    ''' 
     def __init__(self, parent, controller): 
         self.entryExist = False
         tk.Frame.__init__(self, parent) 
