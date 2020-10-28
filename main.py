@@ -63,41 +63,27 @@ class tkinterApp(tk.Tk):
     def show_frame(self, cont): 
         # Show certain frame based on which page we are in
         frame = self.frames[cont] 
-
-        # Temporary function 
-        # REMOVE SOON!!!!
-        self.clearStuff(frame)
-
-        frame.tkraise() 
+        frame.tkraise()
     
     def getFrame(self, c):
         '''
         Used to access frame data of one frame in another
-
         c  --->  Class instance
         '''
         return self.frames[c]
-    
-    def clearStuff(self, f):
-        # Temporary function 
-        # REMOVE SOON!!!!!
-        if f.entryExist:
-            f.folderEntry.delete(0, 'end')
-            f.urlEntry.delete(0, 'end')
 
 # first window frame startpage 
 
-class StartPage(tk.Frame, sys): 
+class StartPage(tk.Frame): 
     '''
     Main Page
     '''
-    def __init__(self, parent, controller): 
+    def __init__(self, parent, controller):
+        '''
+        Design Start Page
+        ''' 
         # Main class instance
         self.controller = controller
-
-        # Temporary Variable
-        # REMOVE SOON!!!
-        self.entryExist = True
 
         # __init__ function for class Tk.Frame
         tk.Frame.__init__(self, parent) 
@@ -143,14 +129,6 @@ class StartPage(tk.Frame, sys):
 
         self.Uframe.grid(row = 2, padx = 10, pady = 10) 
     
-    def unraisablehook(self):
-        '''
-        Overriding sys class method to catch errors in Child Thread
-        '''
-
-        # CHANGE!!!
-        print('error')
-    
     def download(self):
         '''
         Takes to next page 
@@ -162,24 +140,20 @@ class StartPage(tk.Frame, sys):
             if os.path.exists(self.folderString.get()):
 
                 # Change this to end
-                self.controller.show_frame(DownloadPage)
                 url = self.urlString.get()
 
                 # if no url is selected
                 if url == "":
-                    box.showerror(title="No Url entered", message="Please enter a folder!")
+                    box.showerror(title="No Url entered", message="Please enter a url!")
 
                 # Else check for validity of url
                 else:
-                    # Set entry strings to empty here
-
-                    # try catch doesn't work....override unraisablehook from sys and try CHANGE!!!!
                     try: 
                         _thread.start_new_thread(self.filedownload, (url,))
-                        
                     except Exception as e:
-                        print(e)
                         box.showerror(title="Error!", message=str(e))
+                    else:
+                        self.controller.show_frame(DownloadPage)
 
             # If folder is invalid
             else:
@@ -191,8 +165,17 @@ class StartPage(tk.Frame, sys):
 
     def filedownload(self, url):
         # Temporary Function
-        a = Manager(url).video
-        a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
+        try:
+            a = Manager(url).video
+            a.getbestaudio(preftype='m4a').download(filepath=self.controller.folder, callback = self.callback)
+        except Exception as e:
+            box.showerror(title="Error", message=str(e))
+            self.folderEntry.delete(0, 'end')
+            self.urlEntry.delete(0, 'end')
+            self.controller.show_frame(StartPage)
+        else:
+            self.folderEntry.delete(0, 'end')
+            self.urlEntry.delete(0, 'end')
     
     def callback(self, total, recvd, ratio, rate, eta):
         # Status bar update function
@@ -229,10 +212,6 @@ class DownloadPage(tk.Frame):
                             command = lambda : controller.show_frame(StartPage)) 
 
         self.button.grid(row = 2, padx = 10, pady = 5) 
-
-
-
-
 
 # third window frame page2 
 class Page2(tk.Frame): 
